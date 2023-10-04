@@ -1,17 +1,12 @@
-import io.lettuce.core.api.StatefulRedisConnection
-import io.lettuce.core.api.sync.RedisCommands
-import io.lettuce.core.RedisClient
-
+import redis.clients.jedis.Jedis
 
 fun main() {
     // Connect to your Redis server
-    val redisClient = RedisClient.create("redis://localhost:6379")
-    val connection: StatefulRedisConnection<String, String> = redisClient.connect()
-    val syncCommands: RedisCommands<String, String> = connection.sync()
+    val jedis = Jedis("localhost", 6379)
 
     println("Connected to Redis server")
 
-    val numberOfRecords = 100_000
+    val numberOfRecords = 1_000_000
     val dataHelper = DataHelper(numberOfRecords)
     println("Loading Redis database with $numberOfRecords records")
 
@@ -19,12 +14,12 @@ fun main() {
         for (i in 0 until numberOfRecords) {
             val key = dataHelper.generateRandomCustomerIdString()
             val value = dataHelper.generateRandomEmailHash("some_user@domain.com").toString()
-            syncCommands.set(key, value)
+            jedis.set(key, value)
         }
     }
 
-    println("Loaded Redis with $numberOfRecords records. Elapsed time: ${loadElapsedTime/ 1_000_000} ms.")
-    println("Average write time ${loadElapsedTime/numberOfRecords} ns.")
+    println("Loaded Redis with $numberOfRecords records. Elapsed time: ${loadElapsedTime / 1_000_000} ms.")
+    println("Average write time ${loadElapsedTime / numberOfRecords} ns.")
 
     val step = 5
     val numRecordsToRead = numberOfRecords / step
@@ -33,15 +28,15 @@ fun main() {
     val readElapsedTime = measureTimeNanos {
         for (i in 1 until numRecordsToRead step step) {
             val key = i.toString()
-            val readValue = syncCommands.get(key)
+            val readValue = jedis.get(key)
         }
     }
 
-    println("Read $numRecordsToRead records. Elapsed time: ${loadElapsedTime/ 1_000_000} ")
+    println("Read $numRecordsToRead records. Elapsed time: ${readElapsedTime / 1_000_000} ms")
     println("Average entry read time: ${readElapsedTime / numRecordsToRead} ns")
 
     // Use the INFO command to get server statistics
-    val info = syncCommands.info()
+    val info = jedis.info()
 
     // Split the output into lines
     val lines = info.split("\r\n")
@@ -66,8 +61,7 @@ fun main() {
         println("Used Memory not found in INFO output.")
     }
 
-    connection.close()
-    redisClient.shutdown()
+    jedis.close()
 
     println("Done")
 }

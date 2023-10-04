@@ -18,14 +18,13 @@ Before running the benchmark, make sure to use the following JVM arguments:
 
 ### Redis
 
-- Connected to Redis server
-- Loading Redis database with 100,000 records
-- Loaded Redis with 100,000 records. Elapsed time: 35,108 ms
-- Average write time: 351,085 ns
-- Reading 20,000 records...
-- Read 20,000 records. Elapsed time: 35,108 ms
-- Average entry read time: 68,611 ns
-- Used Memory: 715.61 MB
+Loading Redis database with 1000000 records
+Loaded Redis with 1000000 records. Elapsed time: 231602 ms.
+Average write time 231602 ns.
+Reading 200000 records...
+Read 200000 records. Elapsed time: 6916 ms
+Average entry read time: 34582 ns
+Used Memory: 715.61M
 
 ### Chronicle Map
 
