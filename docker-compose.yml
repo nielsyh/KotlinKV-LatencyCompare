@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  custom-redis:
+    build:
+      context: ./redis
+    container_name: custom-redis-container
+    ports:
+      - "6379:6379"
+    command: redis-server /usr/local/etc/redis/redis.conf
