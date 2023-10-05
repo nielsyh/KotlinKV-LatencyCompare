@@ -1,8 +1,13 @@
+import com.github.luben.zstd.ZstdInputStream
+import com.github.luben.zstd.ZstdOutputStream
 import com.google.common.hash.HashCode
 import com.google.common.hash.Hashing.sha256
+import net.openhft.chronicle.core.values.ByteValue
 import net.openhft.chronicle.core.values.IntValue
 import net.openhft.chronicle.map.ChronicleMap
 import net.openhft.chronicle.values.Values
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 
 class DataHelper(private val numberOfRecords: Int) {
@@ -16,30 +21,41 @@ class DataHelper(private val numberOfRecords: Int) {
         }
     }
 
+    fun generateRandomCustomerIdByte(): ByteValue {
+        val randomId = index++
+        return Values.newHeapInstance(ByteValue::class.java).apply {
+            value = randomId.toByte()
+        }
+    }
+
+    fun generateCostumerId(idx: Int): ByteValue {
+        return Values.newHeapInstance(ByteValue::class.java).apply {
+            value = idx.toByte()
+        }
+    }
+
     fun generateRandomCustomerIdString(): String {
         val randomId = index++
         return randomId.toString()
     }
-
 
     fun generateRandomEmailHash(email: String): HashCode {
         return sha256()
             .hashString(email, StandardCharsets.UTF_8)
     }
 
-    fun createChronicleMap(): ChronicleMap<IntValue, ByteArray> {
-
+    fun createChronicleMap(): ChronicleMap<ByteValue, ByteArray> {
         val keySize = 2
         val valueSize = generateRandomEmailHash("some_user@domain.com").asBytes().size
         val overhead = 13
-        val estimatedTotalSize = ((keySize + valueSize + overhead) * numberOfRecords) / (1024 * 1024)
+        val estimatedTotalSize = (keySize + valueSize + overhead) * numberOfRecords / (1024 * 1024)
 
         println("Creating ChronicleMap, estimated size: ${estimatedTotalSize.toInt()} MB")
 
         return ChronicleMap
-            .of(IntValue::class.java, ByteArray::class.java)
+            .of(ByteValue::class.java, ByteArray::class.java)
             .entries(numberOfRecords.toLong())
-            .constantKeySizeBySample(generateRandomCustomerId())
+            .constantKeySizeBySample(generateRandomCustomerIdByte())
             .constantValueSizeBySample(generateRandomEmailHash("some_user@domain.com").asBytes())
             .create()
     }
@@ -50,4 +66,19 @@ inline fun measureTimeNanos(block: () -> Unit): Long {
     block()
     val endTime = System.nanoTime()
     return endTime - startTime
+}
+
+fun compressData(input: String): ByteArray {
+    val outputStream = ByteArrayOutputStream()
+    val zstdOutputStream = ZstdOutputStream(outputStream)
+    zstdOutputStream.write(input.toByteArray(Charsets.UTF_8))
+    zstdOutputStream.close()
+    return outputStream.toByteArray()
+}
+
+fun decompressData(input: ByteArray): String {
+    val inputStream = ByteArrayInputStream(input)
+    val zstdInputStream = ZstdInputStream(inputStream)
+    val byteArray = zstdInputStream.readBytes()
+    return String(byteArray, Charsets.UTF_8)
 }
