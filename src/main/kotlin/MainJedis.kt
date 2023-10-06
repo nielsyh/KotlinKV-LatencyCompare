@@ -1,4 +1,6 @@
+
 import redis.clients.jedis.Jedis
+
 
 fun main() {
     /* Connect to your Redis server */
@@ -6,12 +8,12 @@ fun main() {
 
     println("Connected to Redis server")
 
-    val numberOfRecords = 25_000_000
+    val numberOfRecords = 1_000_000
     val dataHelper = DataHelper(numberOfRecords)
     println("Loading Redis database with $numberOfRecords records")
 
     val loadElapsedTime = measureTimeNanos {
-        for (i in 0 until numberOfRecords) {
+        for (i in 0..<numberOfRecords) {
             val key = compressData(dataHelper.generateRandomCustomerIdString())
             val value = compressData(dataHelper.generateRandomEmailHash("some_user@domain.com").toString())
             jedis.set(key, value)
@@ -26,7 +28,7 @@ fun main() {
     println("Reading $numRecordsToRead records...")
 
     val readElapsedTime = measureTimeNanos {
-        for (i in 1 until numRecordsToRead step step) {
+        for (i in 1..<numRecordsToRead step step) {
             val key = compressData(i.toString())
             val readValue = decompressData(jedis.get(key))
         }

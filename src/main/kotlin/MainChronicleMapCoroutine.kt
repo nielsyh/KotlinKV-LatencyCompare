@@ -1,54 +1,69 @@
 import kotlinx.coroutines.*
 import net.openhft.chronicle.core.values.ByteValue
+import net.openhft.chronicle.map.ChronicleMap
 import net.openhft.chronicle.values.Values
+import java.lang.Integer.min
+
+suspend fun write(chronicleMap: ChronicleMap<ByteValue, ByteArray>, keys: List<ByteValue>, values: List<ByteArray>) {
+    keys.forEachIndexed { index, key ->
+        chronicleMap[key] = values[index]
+    }
+}
+
+suspend fun read(chronicleMap: ChronicleMap<ByteValue, ByteArray>, keys: List<ByteValue>): List<ByteArray?> {
+    return keys.map { key -> chronicleMap[key] }
+}
 
 fun main(args: Array<String>) = runBlocking {
     val numberOfRecords = 25_000_000
+    val batchSizes = intArrayOf(50, 100, 500, 1000, 5000)
 
-    val BatchSize = intArrayOf(1, 5, 20, 50, 100, 500, 1000, 5000, 10_000)
-    for (i in BatchSize) {
-        println("Loading Chronicle Map of size: $numberOfRecords, with BatchSize $i")
+    for (batchSize in batchSizes) {
+        println("Loading Chronicle Map of size: $numberOfRecords, with BatchSize $batchSize")
 
         val dataHelper = DataHelper(numberOfRecords)
         val chronicleMap = dataHelper.createChronicleMap()
-        val loadElapsedTime = measureTimeNanos {
-            val jobs = (0..<numberOfRecords step i).map { start ->
-                launch(Dispatchers.IO) {
-                    for (i in start..<minOf(start + i, numberOfRecords)) {
-                        val key = dataHelper.generateRandomCustomerIdByte()
-                        chronicleMap[key] = dataHelper.generateRandomEmailHash("user_name@somedomain.com").asBytes()
-                    }
-                }
+
+        val jobs = List(numberOfRecords / batchSize) {
+            val keys = (0..<batchSize).map { dataHelper.generateRandomCustomerIdByte() }
+            val values = (0..<batchSize).map { dataHelper.generateRandomEmailHash("user_name@somedomain.com").asBytes() }
+
+            launch {
+                write(chronicleMap, keys, values)
             }
+        }
+
+        val loadElapsedTime = measureTimeNanos {
             jobs.forEach { it.join() }
         }
 
         val memoryFootprint = chronicleMap.offHeapMemoryUsed() / (1024 * 1024)
         println("Loaded Chronicle Map with $numberOfRecords entries. Elapsed time: ${loadElapsedTime / 1_000_000} ms, Memory footprint: $memoryFootprint MB")
-        println("Average write time ${loadElapsedTime / numberOfRecords} ns")
+        println("Average write time ${loadElapsedTime.toDouble() / numberOfRecords} ns")
 
-        val step = 5
-        val numRecordsToRead = numberOfRecords / step
-        println("Reading $numRecordsToRead records...")
+        println("Reading $numberOfRecords records...")
 
-        val readElapsedTime = measureTimeNanos {
-            val jobs = (0..<numRecordsToRead step i).map { start ->
-                launch(Dispatchers.IO) {
-                    for (i in start..<minOf(start + i, numRecordsToRead)) {
-                        val k = Values.newHeapInstance(ByteValue::class.java).apply {
-                            value = (i * step).toByte()
-                        }
-                        val readValue = chronicleMap[k]
-                    }
+        val readJobs = (0..<numberOfRecords step batchSize).map { startIndex ->
+            val endIndex = min(startIndex + batchSize, numberOfRecords)
+            val readKeys = (startIndex..<endIndex).map { i ->
+                Values.newHeapInstance(ByteValue::class.java).apply {
+                    value = i.toByte()
                 }
             }
-            jobs.forEach { it.join() }
+            async {
+                val readValues = read(chronicleMap, readKeys)
+                readValues
+            }
         }
 
-        println("Read $numRecordsToRead records. Elapsed time: ${readElapsedTime / 1_000_000} ms")
-        println("Average entry read time: ${readElapsedTime / numRecordsToRead} ns")
+        val readElapsedTime = measureTimeNanos {
+            readJobs.awaitAll()
+        }
+
+        println("Read $numberOfRecords records. Elapsed time: ${readElapsedTime / 1_000_000} ms")
+        println("Average entry read time: ${readElapsedTime / numberOfRecords} ns")
 
         chronicleMap.close()
-        println("Done with $i")
+        println("Done with BatchSize $batchSize")
     }
 }
