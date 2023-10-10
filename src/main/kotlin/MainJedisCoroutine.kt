@@ -19,7 +19,7 @@ fun main() {
 
     println("Connected to Redis server")
 
-    val numberOfRecords = 10_000
+    val numberOfRecords = 1_000_000
     val dataHelper = DataHelper(numberOfRecords)
 
     val batchSizes = intArrayOf(50, 100, 500, 1000, 5000)
@@ -37,16 +37,16 @@ fun main() {
             val loadElapsedTime: Long = measureTimeNanos {
                 jobs.forEach { it.join() }
             }
-            println("Loaded Redis with $numberOfRecords records. Elapsed time: ${loadElapsedTime/ 1_000_000} ms.")
+            println("Loaded Redis with $numberOfRecords records. Elapsed time: ${loadElapsedTime / 1_000_000} ms.")
             println("Average write time ${loadElapsedTime / numberOfRecords} ns.")
         }
 
         println("Reading $numberOfRecords records...")
 
         runBlocking {
-            val readJobs = (0 until numberOfRecords step batchSize).map { startIndex ->
+            val readJobs = (0..<numberOfRecords step batchSize).map { startIndex ->
                 val endIndex = startIndex + batchSize.coerceAtMost(numberOfRecords)
-                val readKeys = (startIndex until endIndex).map { i -> compressData(i.toString()) }
+                val readKeys = (startIndex..<endIndex).map { i -> compressData(i.toString()) }
                 async {
                     val readValues = readJedis(jedis, readKeys)
                     readValues
@@ -57,7 +57,7 @@ fun main() {
                 readJobs.awaitAll()
             }
 
-            println("Read $numberOfRecords records. Elapsed time: ${readElapsedTime/1_000_000} ms")
+            println("Read $numberOfRecords records. Elapsed time: ${readElapsedTime / 1_000_000} ms")
             println("Average entry read time: ${readElapsedTime / numberOfRecords} ns")
 
             println("Done with BatchSize $batchSize")

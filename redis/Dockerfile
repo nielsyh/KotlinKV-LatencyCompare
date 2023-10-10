@@ -1,4 +1,5 @@
 # Use the official Redis image as the base image
+#FROM i386/redis:latest
 FROM redis:latest
 
 # Copy your custom Redis configuration file to the container

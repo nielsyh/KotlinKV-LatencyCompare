@@ -19,27 +19,42 @@ Before running the benchmark, make sure to use the following JVM arguments:
 ### Redis
 
 #### Serial
-Loading Redis database with 1000000 records
-Loaded Redis with 1000000 records. Elapsed time: 231602 ms.
-Average write time 231602 ns.
-Reading 200000 records...
-Read 200000 records. Elapsed time: 6916 ms
-Average entry read time: 34582 ns
-Used Memory: 715.61M
+- Loaded Redis with 1000000 records. Elapsed time: 450624 ms. 
+- Average write time 450624 ns. 
+- Read 200000 records. Elapsed time: 23597 ms 
+- Average entry read time: 117986 ns 
+- Used Memory: 130.25M
+- For 25_000_000 this will result in a footprint of: 3256.25 MB.
+
+#### Serial 32-bit
+- Loaded Redis with 1000000 records. Elapsed time: 331177 ms.
+- Average write time 331177 ns.
+- Read 200000 records. Elapsed time: 14381 ms
+- Average entry read time: 71905 ns
+- Used Memory: 118.38M
+- For 25_000_000 this will result in a footprint of: 2959.5 MB.
 
 #### Coroutines
 
-#### Performance Metrics for Redis Database (100,000 Records)
+#### Performance Metrics for Redis Database (1,000,000 Records)
 
-| Batch Size | Total Load Time (ms) | Average Load Time (ns) |
-|------------|----------------------|------------------------|
-| 50         | 8060                 | 80600                  |
-| 100        | 7357                 | 73572                  |
-| 500        | 12251                | 122515                 |
-| 1000       | 7627                 | 76275                  |
-| 5000       | 9563                 | 95630                  |
+| Batch Size | Total Load Time (ms) | Average Load Time (ns) | Total Read Time (ms) | Average Entry Read Time (ns) |
+|------------|----------------------|------------------------|----------------------|------------------------------|
+| 50         | 95845                | 95845                  | 143027               | 143027                       |
+| 100        | 92883                | 92883                  | 91908                | 91908                        |
+| 500        | 137798               | 137798                 | 90316                | 90316                        |
+| 1000       | 96541                | 96541                  | 125214               | 125214                       |
+| 5000       | 92372                | 92372                  | 88692                | 88692                        |
 
+#### Same thing but with 32bit redis
 
+| Batch Size | Total Load Time (ms) | Average Load Time (ns) | Total Read Time (ms) | Average Entry Read Time (ns) |
+|------------|----------------------|------------------------|----------------------|------------------------------|
+| 50         | 93996                | 93996                  | 89552                | 89552                        |
+| 100        | 91197                | 91197                  | 102461               | 102461                       |
+| 500        | 94433                | 94433                  | 87090                | 87090                        |
+| 1000       | 124044               | 124044                 | 84025                | 84025                        |
+| 5000       | 93603                | 93603                  | 118898               | 118898                       |
 
 
 ### Chronicle Map
@@ -64,7 +79,7 @@ Used Memory: 715.61M
 - Average entry read time: 320 ns
 
 #### With coroutines:
-
+- Memory footprint is the same with 1076 MB for 25_000_000 entries.
 #### Performance Metrics for Redis Database (10,000 Records)
 
 | Batch Size | Total Load Time (ms) | Average Load Time (ns) | Total Read Time (ms) | Average Entry Read Time (ns) |

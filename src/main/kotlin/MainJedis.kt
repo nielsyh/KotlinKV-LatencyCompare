@@ -1,7 +1,6 @@
 
 import redis.clients.jedis.Jedis
 
-
 fun main() {
     /* Connect to your Redis server */
     val jedis = Jedis("localhost", 6379)

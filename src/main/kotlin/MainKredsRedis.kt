@@ -20,9 +20,9 @@ fun main() = runBlocking {
     val loadElapsedTime = measureTimeNanos {
         launch(threadDispatcher) {
             for (i in 0..<numberOfRecords) {
-                val key = dataHelper.generateRandomCustomerIdString()
-                val value = dataHelper.generateRandomEmailHash("some_user@domain.com").toString()
-                client.set(key, value)
+                val key = dataHelper.generateRandomCustomerIdByte()
+                val value = dataHelper.generateRandomEmailHash("some_user@domain.com").asBytes()
+//                client.set(key, value)
             }
         }.join()
     }
