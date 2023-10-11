@@ -2,7 +2,7 @@ import net.openhft.chronicle.core.values.ByteValue
 import net.openhft.chronicle.values.Values
 
 fun main(args: Array<String>) {
-    val numberOfRecords = 25_000_000
+    val numberOfRecords = 1_000_000
     println("Loading Chronicle Map of size: $numberOfRecords")
 
     val dataHelper = DataHelper(numberOfRecords)

@@ -19,10 +19,10 @@ fun main() {
 
     println("Connected to Redis server")
 
-    val numberOfRecords = 1_000_000
+    val numberOfRecords = 25_000_000
     val dataHelper = DataHelper(numberOfRecords)
 
-    val batchSizes = intArrayOf(50, 100, 500, 1000, 5000)
+    val batchSizes = intArrayOf(1000)
     for (batchSize in batchSizes) {
         println("Loading Redis database with $numberOfRecords records with batchSize: $batchSize")
         runBlocking {
@@ -61,6 +61,32 @@ fun main() {
             println("Average entry read time: ${readElapsedTime / numberOfRecords} ns")
 
             println("Done with BatchSize $batchSize")
+        }
+
+        // Use the INFO command to get server statistics
+        val info = jedis.info()
+
+        // Split the output into lines
+        val lines = info.split("\r\n")
+
+        // Initialize a variable to store used_memory_human
+        var usedMemoryHuman: String? = null
+
+        // Iterate through lines to find used_memory_human
+        for (line in lines) {
+            if (line.startsWith("used_memory_human:")) {
+                val parts = line.split(":")
+                if (parts.size == 2) {
+                    usedMemoryHuman = parts[1].trim()
+                    break
+                }
+            }
+        }
+
+        if (usedMemoryHuman != null) {
+            println("Used Memory: $usedMemoryHuman")
+        } else {
+            println("Used Memory not found in INFO output.")
         }
 
         jedis.close()

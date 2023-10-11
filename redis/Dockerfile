@@ -1,6 +1,6 @@
 # Use the official Redis image as the base image
-#FROM i386/redis:latest
-FROM redis:latest
+FROM i386/redis:latest
+#FROM redis:latest
 
 # Copy your custom Redis configuration file to the container
 COPY redis.conf /usr/local/etc/redis/redis.conf

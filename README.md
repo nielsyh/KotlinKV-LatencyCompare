@@ -16,6 +16,14 @@ Before running the benchmark, make sure to use the following JVM arguments:
 
 ## Benchmark Results
 
+### Memory
+
+|     | Entries    | Redis      | Redis 32-bit | ChronicleMap |
+|-----|------------|------------|--------------|--------------|
+| 1M  | 1,000,000  | 130.25 MB  | 118.38 MB    | 40.0 MB      |
+| 25M | 25,000,000 | 3256.25 MB | 2992 MB      | 1076.0 MB    |
+
+
 ### Redis
 
 #### Serial
@@ -34,7 +42,36 @@ Before running the benchmark, make sure to use the following JVM arguments:
 - Used Memory: 118.38M
 - For 25_000_000 this will result in a footprint of: 2959.5 MB.
 
-#### Coroutines
+#### Serial write
+| Benchmark                        | Elapsed time (ms) | Average write time (ns) |
+|----------------------------------|-------------------|-------------------------|
+| Redis Serial (1M)                | 450624            | 450624                  |
+| Redis Serial (32-bit 1M)         | 331177            | 331177                  |
+| Chronicle Map (Serial, Int) 25M  | 52749             | 2109                    |
+| Chronicle Map (Serial, Byte) 25M | 34022             | 1360                    |
+
+
+#### Serial Read
+| Benchmark                        | Elapsed time (ms) | Average entry read time (ns) |
+|----------------------------------|-------------------|------------------------------|
+| Redis Serial (1M)                | 23597             | 117986                       |
+| Redis Serial (32-bit 1M)         | 14381             | 71905                        |
+| Chronicle Map (Serial, Int) 25M  | 3974              | 794                          |
+| Chronicle Map (Serial, Byte) 25M | 1603              | 320                          |
+
+#### Combi in ms
+
+| Benchmark                         | Elapsed time (ms) (Write) | Average write time (ms) | Elapsed time (ms) (Read) | Average entry read time (ms) |
+|-----------------------------------|---------------------------|-------------------------|--------------------------|------------------------------|
+| Redis Serial (1M)                 | 450.624                   | 0.450624                | 23.597                   | 0.117986                     |
+| Redis Serial (32-bit 1M)          | 331.177                   | 0.331177                | 14.381                   | 0.071905                     |
+| Chronicle Map (Serial, Int, 25M)  | 52.749                    | 0.002109                | 3.974                    | 0.000794                     |
+| Chronicle Map (Serial, Byte, 25M) | 34.022                    | 0.001360                | 1.603                    | 0.000320                     |
+
+
+
+
+#### Redis Coroutines with batching
 
 #### Performance Metrics for Redis Database (1,000,000 Records)
 
@@ -46,7 +83,17 @@ Before running the benchmark, make sure to use the following JVM arguments:
 | 1000       | 96541                | 96541                  | 125214               | 125214                       |
 | 5000       | 92372                | 92372                  | 88692                | 88692                        |
 
-#### Same thing but with 32bit redis
+#### Performance Metrics for Redis Database (10,000 Records)
+
+| Batch Size | Total Load Time (ms) | Average Load Time (ns) | Total Read Time (ms) | Average Entry Read Time (ns) |
+|------------|----------------------|------------------------|----------------------|------------------------------|
+| 50         | 2370                 | 237056                 | 1291                 | 129194                       |
+| 100        | 1165                 | 116552                 | 1050                 | 105086                       |
+| 500        | 1163                 | 116345                 | 1090                 | 109044                       |
+| 1000       | 1127                 | 112775                 | 1406                 | 140694                       |
+| 5000       | 1231                 | 123142                 | 1211                 | 121186                       |
+
+#### Performance Metrics for Redis 32BIT Database (1M Records)
 
 | Batch Size | Total Load Time (ms) | Average Load Time (ns) | Total Read Time (ms) | Average Entry Read Time (ns) |
 |------------|----------------------|------------------------|----------------------|------------------------------|
@@ -56,6 +103,11 @@ Before running the benchmark, make sure to use the following JVM arguments:
 | 1000       | 124044               | 124044                 | 84025                | 84025                        |
 | 5000       | 93603                | 93603                  | 118898               | 118898                       |
 
+#### Redis 25 M , 1000 batch size run coroutine 32bit
+- Loaded Redis with 25000000 records. Elapsed time: 3204607 ms.
+- Average write time 128184 ns.
+- Read 25000000 records. Elapsed time: 1841305 ms
+- Average entry read time: 73652 ns
 
 ### Chronicle Map
 
@@ -80,18 +132,8 @@ Before running the benchmark, make sure to use the following JVM arguments:
 
 #### With coroutines:
 - Memory footprint is the same with 1076 MB for 25_000_000 entries.
-#### Performance Metrics for Redis Database (10,000 Records)
 
-| Batch Size | Total Load Time (ms) | Average Load Time (ns) | Total Read Time (ms) | Average Entry Read Time (ns) |
-|------------|----------------------|------------------------|----------------------|------------------------------|
-| 50         | 2370                 | 237056                 | 1291                 | 129194                       |
-| 100        | 1165                 | 116552                 | 1050                 | 105086                       |
-| 500        | 1163                 | 116345                 | 1090                 | 109044                       |
-| 1000       | 1127                 | 112775                 | 1406                 | 140694                       |
-| 5000       | 1231                 | 123142                 | 1211                 | 121186                       |
-
-
-#### Performance Metrics for 1,000,000 Records
+#### Chronicle Map Performance Metrics for 1,000,000 Records 
 
 | Batch Size | Total Write Time (ns) | Average Write Time (ns) |
 |------------|-----------------------|-------------------------|
@@ -106,35 +148,13 @@ Before running the benchmark, make sure to use the following JVM arguments:
 | 10000      | 812736331             | 812.736331              |
 | 100000     | 653749348             | 653.749348              |
 
-#### Performance Metrics for Redis Database (1,000,000 Records)
 
-| Batch Size | Total Load Time (ms) | Average Load Time (ms) | Total Read Time (ms) | Average Entry Read Time (ns) |
+#### Performance Metrics for Chronicle Map (25,000,000 Entries)
+
+| Batch Size | Total Load Time (ms) | Average Load Time (ns) | Total Read Time (ms) | Average Entry Read Time (ns) |
 |------------|----------------------|------------------------|----------------------|------------------------------|
-| 50         | 72545937671          | 72545                  | 71987159572          | 71987                        |
-| 100        | 72740324489          | 72740                  | 71669914517          | 71669                        |
-| 500        | 72033659979          | 72033                  | 69934617394          | 69934                        |
-| 1000       | 94574314717          | 94574                  | 70758909919          | 70758                        |
-| 5000       | 73871336801          | 73871                  | 69684356113          | 69684                        |
-
-
-#### Performance Metrics for 25,000,000 Records
-
-| Batch Size | Total Write Time (ms) | Average Write Time (ns) |
-|------------|-----------------------|-------------------------|
-| 100        | 17.141                | 685.65                  |
-| 500        | 13.456                | 538.25                  |
-| 1000       | 13.219                | 528.80                  |
-| 5000       | 14.324                | 573.00                  |
-
-
-#### Performance Metrics for 25,000,000 Records
-
-| Batch Size | Total Write Time (ms) | Average Write Time (ns) | Total Read Time (ms) | Average Entry Read Time (ns) |
-|------------|-----------------------|-------------------------|----------------------|------------------------------|
-| 50         | 14.194                | 567.79                  | 4.663                | 186                          |
-| 100        | 15.144                | 605.78                  | 4.865                | 194                          |
-| 500        | 13.635                | 545.40                  | 4.837                | 193                          |
-| 1000       | 19.921                | 796.85                  | 4.943                | 197                          |
-| 5000       | 14.328                | 573.15                  | 3.607                | 144                          |
-
-
+| 50         | 16862                | 674.494                | 5895                 | 235                          |
+| 100        | 16401                | 656.043                | 5817                 | 232                          |
+| 500        | 13275                | 531.032                | 5136                 | 205                          |
+| 1000       | 13841                | 553.679                | 4283                 | 171                          |
+| 5000       | 13921                | 556.875                | 4302                 | 172                          |
