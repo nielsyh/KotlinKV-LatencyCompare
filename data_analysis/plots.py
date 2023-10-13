@@ -3,8 +3,8 @@ import numpy as np
 from tabulate import tabulate
 
 from data_analysis.data import redis_serial_1M, redis_serial_32bit_1M, chronicle_map_serial_int, \
-    chronicle_map_serial_byte, chronicle_map_metrics_1M, chronicle_map_metrics_25M_entries, \
-    redis_coroutines_metrics_1M, redis_coroutines_32bit_metrics_1M, memory_footprint
+    chronicle_map_serial_byte, chronicle_map_metrics_25M_entries, \
+    redis_coroutines_metrics_1M, redis_coroutines_32bit_metrics_1M, memory_footprint, lettuce_coroutines_32bit_metrics_1M, lettuce_coroutines_32bit_metrics_1M_dispatcher_default
 
 
 def plot_serial():
@@ -79,7 +79,9 @@ def plot_coroutines_write():
     datasets = {
         "Redis Coroutines 1M Records": redis_coroutines_metrics_1M,
         "Redis 32-bit Coroutines 1M Records": redis_coroutines_32bit_metrics_1M,
-        "Chronicle Map 25M Records": chronicle_map_metrics_25M_entries,
+        "Redis lettuce coroutines 32bit 1M Dis.Def.": lettuce_coroutines_32bit_metrics_1M,
+        "Redis lettuce coroutines 32bit 1M Dis.IO.": lettuce_coroutines_32bit_metrics_1M_dispatcher_default,
+        "Chronicle Map 25M Records Dis.Def.": chronicle_map_metrics_25M_entries,
     }
 
     # Create a single plot with different colors and a legend
@@ -107,7 +109,9 @@ def plot_coroutines_read():
     datasets = {
         "Redis Coroutines 1M Records": redis_coroutines_metrics_1M,
         "Redis 32-bit Coroutines 1M Records": redis_coroutines_32bit_metrics_1M,
-        "Chronicle Map 25M Records": chronicle_map_metrics_25M_entries,
+        "Redis lettuce coroutines 32bit 1M Dis.Def.": lettuce_coroutines_32bit_metrics_1M,
+        "Redis lettuce coroutines 32bit 1M Dis.IO.": lettuce_coroutines_32bit_metrics_1M_dispatcher_default,
+        "Chronicle Map 25M Records Dis.Def.": chronicle_map_metrics_25M_entries,
     }
 
     # Create a single plot with different colors and a legend

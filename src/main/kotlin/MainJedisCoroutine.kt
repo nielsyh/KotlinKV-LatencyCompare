@@ -19,13 +19,13 @@ fun main() {
 
     println("Connected to Redis server")
 
-    val numberOfRecords = 25_000_000
+    val numberOfRecords = 1_000_000
     val dataHelper = DataHelper(numberOfRecords)
 
     val batchSizes = intArrayOf(1000)
     for (batchSize in batchSizes) {
         println("Loading Redis database with $numberOfRecords records with batchSize: $batchSize")
-        runBlocking {
+        runBlocking() {
             val jobs = List(numberOfRecords / batchSize) {
                 val keys = (0..<batchSize).map { i -> compressData(dataHelper.generateRandomCustomerIdString()) }
                 val values = (0..<batchSize).map { i -> compressData(dataHelper.generateRandomEmailHash("some_user@domain.com").toString()) }
@@ -39,11 +39,9 @@ fun main() {
             }
             println("Loaded Redis with $numberOfRecords records. Elapsed time: ${loadElapsedTime / 1_000_000} ms.")
             println("Average write time ${loadElapsedTime / numberOfRecords} ns.")
-        }
 
-        println("Reading $numberOfRecords records...")
+            println("Reading $numberOfRecords records...")
 
-        runBlocking {
             val readJobs = (0..<numberOfRecords step batchSize).map { startIndex ->
                 val endIndex = startIndex + batchSize.coerceAtMost(numberOfRecords)
                 val readKeys = (startIndex..<endIndex).map { i -> compressData(i.toString()) }

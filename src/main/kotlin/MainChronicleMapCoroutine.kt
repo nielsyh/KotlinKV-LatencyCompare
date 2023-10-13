@@ -5,6 +5,7 @@ import net.openhft.chronicle.values.Values
 import java.lang.Integer.min
 
 suspend fun write(chronicleMap: ChronicleMap<ByteValue, ByteArray>, keys: List<ByteValue>, values: List<ByteArray>) {
+//    println("Started on ${Thread.currentThread().name}")
     keys.forEachIndexed { index, key ->
         chronicleMap[key] = values[index]
     }
@@ -14,8 +15,9 @@ suspend fun read(chronicleMap: ChronicleMap<ByteValue, ByteArray>, keys: List<By
     return keys.map { key -> chronicleMap[key] }
 }
 
-fun main(args: Array<String>) = runBlocking {
+fun main(args: Array<String>) = runBlocking(Dispatchers.Default) {
     val numberOfRecords = 25_000_000
+//    val batchSizes = intArrayOf(1000)
     val batchSizes = intArrayOf(50, 100, 500, 1000, 5000)
 
     for (batchSize in batchSizes) {

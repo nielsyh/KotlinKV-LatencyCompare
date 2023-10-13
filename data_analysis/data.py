@@ -72,6 +72,22 @@ redis_coroutines_32bit_metrics_1M = {
     "Average Entry Read Time (ns)": [89552, 102461, 87090, 84025, 118898]
 }
 
+lettuce_coroutines_32bit_metrics_1M = {
+    "Batch Size": [50, 100, 500, 1000, 5000],
+    "Total Load Time (ms)": [29035, 32155, 31871, 29836, 31624],
+    "Average Entry Read Time (ns)": [29035, 32155, 31871, 29836, 31624],
+    "Total Read Time (ms)": [30989, 30028, 30190, 31560, 47525],
+    "Average Write Time (ns)": [30989, 30028, 30190, 31560, 47525]
+}
+
+lettuce_coroutines_32bit_metrics_1M_dispatcher_default = {
+    "Batch Size": [50, 100, 500, 1000, 5000],
+    "Total Load Time (ms)": [54524, 56183, 55298, 55105, 60346],
+    "Average Entry Read Time (ns)": [54524, 56183, 55298, 55105, 60346],
+    "Total Read Time (ms)": [54754, 53877, 55669, 66286, 58759],
+    "Average Write Time (ns)": [54754, 53877, 55669, 66286, 58759]
+}
+
 
 # Chronicle Map Performance Metrics for 1,000,000 Records
 chronicle_map_metrics_1M = {
@@ -83,13 +99,11 @@ chronicle_map_metrics_1M = {
 # Chronicle Map Performance Metrics for 25,000,000 Records
 chronicle_map_metrics_25M_entries = {
     "Batch Size": [50, 100, 500, 1000, 5000],
-    "Total Load Time (ms)": [16862, 16401, 13275, 13841, 13921],
-    "Average Write Time (ns)": [674.494, 656.043, 531.032, 553.679, 556.875],
-    "Total Read Time (ms)": [5895, 5817, 5136, 4283, 4302],
-    # "Average Write Time (ns)": [235, 232, 205, 171, 172],
-    "Average Entry Read Time (ns)": [235, 232, 205, 171, 172],
+    "Total Load Time (ms)": [60, 206, 11, 3, 6],
+    "Average Write Time (ns)": [60, 206, 11, 3, 6],
+    "Total Read Time (ms)": [596, 137, 250, 47, 19],
+    "Average Entry Read Time (ns)": [596, 137, 250, 47, 19]
 }
-
 
 memory_footprint = {
     "entries": [1_000_000, 25_000_000],

@@ -18,10 +18,10 @@ Before running the benchmark, make sure to use the following JVM arguments:
 
 ### Memory
 
-|     | Entries    | Redis      | Redis 32-bit | ChronicleMap |
-|-----|------------|------------|--------------|--------------|
-| 1M  | 1,000,000  | 130.25 MB  | 118.38 MB    | 40.0 MB      |
-| 25M | 25,000,000 | 3256.25 MB | 2992 MB      | 1076.0 MB    |
+|     | Entries    | Jedis      | Jedis 32-bit | Lettuce 32 bit | ChronicleMap |
+|-----|------------|------------|--------------|----------------|--------------|
+| 1M  | 1,000,000  | 130.25 MB  | 118.38 MB    | 119.17 MB      | 40.0 MB      |
+| 25M | 25,000,000 | 3256.25 MB | 2992 MB      | 3100 MB        | 1076.0 MB    |
 
 
 ### Redis
@@ -41,6 +41,13 @@ Before running the benchmark, make sure to use the following JVM arguments:
 - Average entry read time: 71905 ns
 - Used Memory: 118.38M
 - For 25_000_000 this will result in a footprint of: 2959.5 MB.
+
+#### Serial Redis 32bit Lettuce client
+- Loaded Redis with 1000000 records. Elapsed time: 282315 ms.
+- Average write time 282315 ns. 
+- Read 200000 records. Elapsed time: 7853 ms 
+- Average entry read time: 39269 ns
+- Used Memory: 119.17M
 
 #### Serial write
 | Benchmark                        | Elapsed time (ms) | Average write time (ns) |
@@ -109,6 +116,77 @@ Before running the benchmark, make sure to use the following JVM arguments:
 - Read 25000000 records. Elapsed time: 1841305 ms
 - Average entry read time: 73652 ns
 
+### Redis 1M 32bit lettuce dispatchers.default
+- Loading Redis database with 1000000 records with batchSize: 1000
+- Loaded Redis with 1000000 records. Elapsed time: 53613 ms.
+- Average write time 53613 ns.
+- Read 1000000 records. Elapsed time: 56935 ms
+- Average entry read time: 56935 ns
+- Used Memory: 119.17M
+
+#### dispatchers io
+Used Memory: 119.19M
+
+Loading Redis database with 1000000 records with batchSize: 50
+Loaded Redis with 1000000 records. Elapsed time: 29035 ms.
+Average write time 29035 ns.
+Read 1000000 records. Elapsed time: 30989 ms
+Average entry read time: 30989 ns
+Done with BatchSize 50
+
+
+Loading Redis database with 1000000 records with batchSize: 100
+Loaded Redis with 1000000 records. Elapsed time: 32155 ms.
+Average write time 32155 ns.
+Read 1000000 records. Elapsed time: 30028 ms
+Average entry read time: 30028 ns
+Done with BatchSize 100
+
+Loading Redis database with 1000000 records with batchSize: 500
+Loaded Redis with 1000000 records. Elapsed time: 31871 ms.
+Average write time 31871 ns.
+Read 1000000 records. Elapsed time: 30190 ms
+Average entry read time: 30190 ns
+Done with BatchSize 500
+
+Loading Redis database with 1000000 records with batchSize: 1000
+Loaded Redis with 1000000 records. Elapsed time: 29836 ms.
+Average write time 29836 ns.
+Read 1000000 records. Elapsed time: 31560 ms
+Average entry read time: 31560 ns
+Done with BatchSize 1000
+
+Loading Redis database with 1000000 records with batchSize: 5000
+Loaded Redis with 1000000 records. Elapsed time: 31624 ms.
+Average write time 31624 ns.
+Read 1000000 records. Elapsed time: 47525 ms
+Average entry read time: 47525 ns
+Done with BatchSize 5000
+
+### Redis 1M 32bit lettuce dispatchers.IO
+
+| Batch Size | Total Load Time (ms) | Average Load Time (ns) | Total Read Time (ms) | Average Entry Read Time (ns) |
+|------------|----------------------|------------------------|----------------------|------------------------------|
+| 50         | 29035                | 29035                  | 30989                | 30989                        |
+| 100        | 32155                | 32155                  | 30028                | 30028                        |
+| 500        | 31871                | 31871                  | 30190                | 30190                        |
+| 1000       | 29836                | 29836                  | 31560                | 31560                        |
+| 5000       | 31624                | 31624                  | 47525                | 47525                        |
+
+### Redis 1M 32bit lettuce dispatchers.DEFAULT
+
+| Batch Size | Total Load Time (ms) | Average Load Time (ns) | Total Read Time (ms) | Average Entry Read Time (ns) |
+|------------|----------------------|------------------------|----------------------|------------------------------|
+| 50         | 54524                | 54524                  | 54754                | 54754                        |
+| 100        | 56183                | 56183                  | 53877                | 53877                        |
+| 500        | 55298                | 55298                  | 55669                | 55669                        |
+| 1000       | 55105                | 55105                  | 66286                | 66286                        |
+| 5000       | 60346                | 60346                  | 58759                | 58759                        |
+
+
+
+
+
 ### Chronicle Map
 
 #### Serial <IntValue, ByteArray>
@@ -149,12 +227,13 @@ Before running the benchmark, make sure to use the following JVM arguments:
 | 100000     | 653749348             | 653.749348              |
 
 
-#### Performance Metrics for Chronicle Map (25,000,000 Entries)
+### Performance Metrics for Chronicle Map (25,000,000 Records) with Dispatcher.Default
 
 | Batch Size | Total Load Time (ms) | Average Load Time (ns) | Total Read Time (ms) | Average Entry Read Time (ns) |
 |------------|----------------------|------------------------|----------------------|------------------------------|
-| 50         | 16862                | 674.494                | 5895                 | 235                          |
-| 100        | 16401                | 656.043                | 5817                 | 232                          |
-| 500        | 13275                | 531.032                | 5136                 | 205                          |
-| 1000       | 13841                | 553.679                | 4283                 | 171                          |
-| 5000       | 13921                | 556.875                | 4302                 | 172                          |
+| 50         | 60                   | 2.43099476             | 596                  | 23                           |
+| 100        | 206                  | 8.2783458              | 137                  | 5                            |
+| 500        | 11                   | 0.47761084             | 250                  | 10                           |
+| 1000       | 3                    | 0.15430896             | 47                   | 1.88                         |
+| 5000       | 6                    | 0.27697                | 19                   | 0.76                         |
+
